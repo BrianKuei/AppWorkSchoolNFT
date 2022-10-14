@@ -20,7 +20,7 @@ describe("AppWorkSchoolNFT", function () {
     it("Should open mint function", async function () {
       const { appWorkSchoolNFT } = await loadFixture(deployOneYearLockFixture);
       await appWorkSchoolNFT.toggleMint()
-      expect(await appWorkSchoolNFT.mintActive()).to.equal(false);
+      expect(await appWorkSchoolNFT.mintActive()).to.equal(true);
     });
   });
 });

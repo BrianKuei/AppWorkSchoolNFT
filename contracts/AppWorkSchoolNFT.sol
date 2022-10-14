@@ -2,46 +2,33 @@
 
 pragma solidity ^0.8.17;
 
-import "hardhat/console.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/MerkleProofUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-contract AppWorkSchoolNFT is ERC721Upgradeable, OwnableUpgradeable {
-  using StringsUpgradeable for uint256;
+contract AppWorkSchoolNFT is ERC721, Ownable {
+  using Strings for uint256;
 
-  using CountersUpgradeable for CountersUpgradeable.Counter;
-  CountersUpgradeable.Counter private _nextTokenId;
+  using Counters for Counters.Counter;
+  Counters.Counter private _nextTokenId;
 
-  uint256 public price;
-  uint256 public MAX_SUPPLY;
+  uint256 public price = 0.01 ether;
+  uint256 public constant MAX_SUPPLY = 100;
  
-  bool public mintActive;
-  bool public earlyMintActive;
-  bool public blindBoxOpened;
+  bool public mintActive = false;
+  bool public earlyMintActive = false;
+  bool public blindBoxOpened = false;
   
   string public baseURI;
   bytes32 public merkleRoot;
-  string private _blindTokenURI;
+  string private _blindTokenURI = "ipfs://link";
 
   mapping(uint256 => string) private _tokenURIs;
   mapping(address => uint256) public addressMintedBalance;
 
-  // constructor() ERC721("AppWorks", "AW") {
+  constructor() ERC721("AppWorks", "AW") {
  
-  // }
-
-  function initialize() initializer public {
-    __ERC721_init("AppWorks", "AW");
-
-    price = 0.01 ether;
-    MAX_SUPPLY = 100;
-    mintActive = false;
-    earlyMintActive = false;
-    blindBoxOpened = false;
-    _blindTokenURI = "ipfs://link";
   }
 
   modifier checkActiveMintableFund (bool _active, uint _amount) {
@@ -63,7 +50,6 @@ contract AppWorkSchoolNFT is ERC721Upgradeable, OwnableUpgradeable {
     for(uint i = 0; i < _amount; i++){
       uint currentId = totalSupply();
       _nextTokenId.increment();
-      console.log("=========>",currentId);
       _setTokenURI(currentId, uri);
       _safeMint(msg.sender, currentId);
     }
@@ -88,7 +74,7 @@ contract AppWorkSchoolNFT is ERC721Upgradeable, OwnableUpgradeable {
   }
 
   function isValid(bytes32[] calldata proof, bytes32 leaf) public view returns (bool) {
-    return MerkleProofUpgradeable.verifyCalldata(proof, merkleRoot, leaf);
+    return MerkleProof.verifyCalldata(proof, merkleRoot, leaf);
   }
 
   // Early mint function for people on the whitelist - week 9
@@ -109,7 +95,7 @@ contract AppWorkSchoolNFT is ERC721Upgradeable, OwnableUpgradeable {
     return baseURI;
   }
 
-  function tokenURI(uint256 tokenId) public view virtual override(ERC721Upgradeable) returns (string memory) {
+  function tokenURI(uint256 tokenId) public view virtual override(ERC721) returns (string memory) {
      _requireMinted(tokenId);
 
     if(blindBoxOpened){
@@ -162,4 +148,5 @@ contract AppWorkSchoolNFT is ERC721Upgradeable, OwnableUpgradeable {
 
   // Let this contract can be upgradable, using openzepplin proxy library - week 10
   // Try to modify blind box images by using proxy
+  
 }
