@@ -46,12 +46,11 @@ contract AppWorkSchoolNFT is ERC721, Ownable {
 
   function processMint(uint256 _amount, string calldata uri) private{
     addressMintedBalance[msg.sender] += _amount;
+    uint currentId = totalSupply();
 
-    for(uint i = 0; i < _amount; i++){
-      uint currentId = totalSupply();
+    for(uint i; i < _amount; ++i){
       _nextTokenId.increment();
-      _setTokenURI(currentId, uri);
-      _safeMint(msg.sender, currentId);
+      _safeMint(msg.sender, currentId + i);
     }
   }
   
@@ -121,8 +120,8 @@ contract AppWorkSchoolNFT is ERC721, Ownable {
   }
 
    // Implement setBaseURI(newBaseURI) Function to set BaseURI - week 9
-  function setBaseURI(string calldata newBaseURI) external onlyOwner {
-    baseURI = newBaseURI;
+  function setBaseURI(string calldata _newBaseURI) external onlyOwner {
+    baseURI = _newBaseURI;
   }
 
   // Implement toggleMint() Function to toggle the public mint available or not - week 8
